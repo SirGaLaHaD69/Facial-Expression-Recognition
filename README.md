@@ -5,7 +5,7 @@ This Project is a real time facial expression recogniser built using OpenCV
 with the help of Machine Learning  and deep Nets.It shows the most likely
 expression of a face like Happy,Angry,Calm, Surprised etc.
 
-### **This Repository contains two models**
+### *This Repository contains two models*
 
 ## Using KNN (K Nearest  Neighbours) Algorithm.
 -  This model has achieved  a very high accuarcy on faces like mine and that of
