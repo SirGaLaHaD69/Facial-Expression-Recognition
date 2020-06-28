@@ -20,12 +20,17 @@ from keras.regularizers import l2
 
 """###**Data Preprocessing**"""
 
-dataFrame = pd.read_csv('fer2013.csv')
-y_train=dataFrame.iloc[:20000,:1].values
-X=dataFrame.iloc[:20000,1:2].values
-x_train = []
+!unzip 'fer2013'
 
-for i in range(20000):
+dataFrame = pd.read_csv('fer2013.csv')
+print(dataFrame.shape)
+y_train=dataFrame.iloc[:30000,:1].values
+y_test =  dataFrame.iloc[30000:,:1].values
+X=dataFrame.iloc[:30000,1:2].values
+X_test = dataFrame.iloc[30000:,1:2].values
+x_train,x_test = [],[]
+
+for i in range(30000):
     if y_train[i][0]==1:
         y_train[i][0]=0
     if y_train[i][0]==4:
@@ -34,23 +39,29 @@ for i in range(20000):
         y_train[i][0]=1
     if y_train[i][0]==6:
         y_train[i][0]=4
+for i in range(5887):
+    if y_test[i][0]==1:
+        y_test[i][0]=0
+    if y_test[i][0]==4:
+        y_test[i][0]=2
+    if y_test[i][0]==5:
+        y_test[i][0]=1
+    if y_test[i][0]==6:
+        y_test[i][0]=4
         
 y_train=np_utils.to_categorical(y_train)        
-        
-for i in range(20000):
+y_test=np_utils.to_categorical(y_test)        
+for i in range(30000):
     pixels = np.array(X[i][0].split(" "),dtype='float32')
     pixels=np.reshape(pixels,(48,48,1))
     x_train.append(pixels)
-
+for i in range(5887):
+    pixels = np.array(X_test[i][0].split(" "),dtype='float32')
+    pixels=np.reshape(pixels,(48,48,1))
+    x_test.append(pixels)
 
 x_train=np.array(x_train,'float32')/255.0
-
-
-"""## Callbacks"""
-
-from keras.callbacks import ModelCheckpoint,EarlyStopping
-es = EarlyStopping(monitor='val_acc',patience=2)
-chkp = ModelCheckpoint('best_model.h5', monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+x_test=np.array(x_test,'float32')/255.0
 
 """## **Building the Model**"""
 
@@ -60,42 +71,51 @@ num_features=64
 model = Sequential()
 
 model.add(Conv2D(num_features, kernel_size=(3, 3), activation='relu', input_shape=(48, 48, 1), kernel_regularizer=l2(0.01)))
+model.add(BatchNormalization())
 model.add(Conv2D(num_features, kernel_size=(3, 3), activation='relu'))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-model.add(Dropout(0.3))
+model.add(Dropout(0.4))
 
 model.add(Conv2D(2*num_features, kernel_size=(3, 3), activation='relu'))
 model.add(BatchNormalization())
 model.add(Conv2D(2*num_features, kernel_size=(3, 3), activation='relu'))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-model.add(Dropout(0.3))
+model.add(Dropout(0.4))
 
 model.add(Conv2D(2*2*num_features, kernel_size=(3, 3), activation='relu'))
 model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+model.add(Dropout(0.4))
 model.add(Flatten())
 
 model.add(Dense(num_features, activation='relu'))
+model.add(BatchNormalization())
 model.add(Dropout(0.3))
 model.add(Dense(5, activation='softmax'))
 model.summary()
 
 """### *Compling and Testing*"""
 
-#model.compile(loss='categorical_crossentropy',
-#              optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-7),
-#              metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',
+              optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-7),
+              metrics=['accuracy'])
 
 
-#hist=model.fit(x_train,y_train,shuffle=1,epochs=30,batch_size=64,validation_split=0.2,callbacks=[chkp,es])
-
-
-
+hist=model.fit(x_train,y_train,shuffle=1,epochs=10,batch_size=128,validation_split=0.2,callbacks=[chkp])
 
 """## *Saving the weights*"""
 
-#model.save_weights('fer_weight.h5',overwrite=1)
-
 model.load_weights('best_model.h5')
 
+"""## Callbacks"""
+
+from keras.callbacks import ModelCheckpoint,EarlyStopping
+es = EarlyStopping(monitor='val_acc',patience=2)
+chkp = ModelCheckpoint('best_model.h5', monitor='val_accuracy', verbose=1, save_best_only=True, save_weights_only=False, mode='auto')
+
+"""###*Evaluating the model*"""
+
+loss,acc = model.evaluate(x_test,y_test)
+acc
