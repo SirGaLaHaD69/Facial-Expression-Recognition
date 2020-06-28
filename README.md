@@ -17,9 +17,8 @@ expression of a face like Happy,Angry,Calm, Surprised etc.
 
 ## Using CNN ( Convolutional Neural Networks) Algorithm
 -  This Model has been trained on the Kaggle dataset FER2013
-   which had around 38k images. I trained this model on 20k of
-   them and achieved an accuracy of 64% ( Early stopping to avoid 
-   Overfitting)
+   which had around 38k images.Trained on 24k images , validated
+   on 6k images. Finally tested on 8k faces.
    
  -  This Model works well  on New Faces too.
  - ### *Model in figures*
