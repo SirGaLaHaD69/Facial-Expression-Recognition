@@ -22,3 +22,7 @@ expression of a face like Happy,Angry,Calm, Surprised etc.
    Overfitting)
    
  -  This Model works well  on New Faces too.
+ - ### *Model in figures*
+    - Val accuracy : 70.2 %
+    - Test accuracy ~ 70 %
+    - Model that won the Kaggle contest had an acc of 71%
