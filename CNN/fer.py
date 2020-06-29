@@ -7,9 +7,9 @@ import trainfer
 
 emotions={0:'Angry',
           1:'Surprised',
-          2:"Sad/Calm",
+          2:"Sad",
           3:"Happy",
-          4:"Calm/Sad"
+          4:"Calm"
   }
 
 
@@ -33,7 +33,8 @@ while True:
         offset =10
         face_section = frame[y-offset:y+offset+h,x-offset:x+offset+w]
         face_section = cv2.resize(face_section,(48,48))
-        out = trainfer.model.predict(face_section.reshape(1,48,48,1))
+        face_section = (face_section.reshape(1,48,48,1))/255.0
+        out = trainfer.model.predict(face_section)
         ind = np.argmax(out)
         pred_per = (out[0][ind])*100
         pred_name = emotions[ind]
