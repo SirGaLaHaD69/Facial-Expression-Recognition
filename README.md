@@ -1,3 +1,8 @@
+Made by <b><i>RITIK PARIDA</i></b>
+<br>
+CSE,NITR-22
+<br>
+(This is <b>NOT</b> a Coursera-Guided Project)
 # Facial Expression Recogntion (FER)
 
 
